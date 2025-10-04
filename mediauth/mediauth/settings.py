@@ -48,7 +48,6 @@ INSTALLED_APPS = [
     'ocrservice',
     
 ]
-GROQ_API_KEY = "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"
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware', 
