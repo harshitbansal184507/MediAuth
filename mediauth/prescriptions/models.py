@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from datetime import datetime
 
 User = get_user_model()
 
@@ -31,11 +32,14 @@ class Prescription(models.Model):
     filled_date = models.DateTimeField(null=True, blank=True)
     
     def save(self, *args, **kwargs):
-        if not self.prescription_id:
-            # Generate prescription ID
-            from datetime import datetime
-            self.prescription_id = f"RX{datetime.now().strftime('%Y%m%d')}{self.id or '000'}"
+        # Save first to get a valid ID
+        is_new = self.pk is None
         super().save(*args, **kwargs)
+
+        # Now generate a unique prescription_id using the real ID
+        if is_new and not self.prescription_id:
+            self.prescription_id = f"RX{datetime.now().strftime('%Y%m%d')}{self.id:04d}"
+            super().save(update_fields=['prescription_id'])
     
     def __str__(self):
         return f"{self.prescription_id} - {self.patient.username}"
